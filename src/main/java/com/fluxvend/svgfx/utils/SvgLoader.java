@@ -1,17 +1,17 @@
 /*
- * Copyright 2016 Andreas Fester
+ * Copyright 2024 Fluxvend
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.fluxvend.svgfx.utils;
 
@@ -34,12 +34,24 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * SvgLoader is a utility class for loading and processing SVG images in JavaFX.
+ * It supports applying colors and resizing images.
+ */
 public class SvgLoader {
 
+    public static final String BI_ICON_PATH = "/com/fluxvend/svgfx/images/svg/bi/bi-";
     private static Logger log = Logger.getLogger(SvgLoader.class.getName());
 
     private static SvgLoader loader;
 
+    private String themePath = "/styles/themes/default.css";
+
+    /**
+     * Returns the singleton instance of SvgLoader.
+     *
+     * @return the singleton instance
+     */
     public static SvgLoader getInstance() {
         if (loader == null) {
             loader = new SvgLoader();
@@ -47,13 +59,40 @@ public class SvgLoader {
         return loader;
     }
 
+    public static SvgLoader getInstance(String themePath) {
+        if (loader == null) {
+            loader = new SvgLoader();
+        }
+        loader.themePath = themePath;
+        return loader;
+    }
+
     private SvgLoader() {
     }
 
+    /**
+     * Loads an SVG image from a URL with specified width and height.
+     *
+     * @param url        the URL of the SVG file
+     * @param fillStroke whether to fill stroke color
+     * @param width      the width of the image
+     * @param height     the height of the image
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url, boolean fillStroke, int width, int height) {
         return loadSvgImage(url, null, fillStroke, width, height);
     }
 
+    /**
+     * Loads an SVG image from a URL with specified color class, fill stroke, width, and height.
+     *
+     * @param url        the URL of the SVG file
+     * @param colorClass the color class to apply
+     * @param fillStroke whether to fill stroke color
+     * @param width      the width of the image
+     * @param height     the height of the image
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url, String colorClass, boolean fillStroke, int width, int height) {
 
         BufferedImageTranscoder trans = new BufferedImageTranscoder(width, height);
@@ -90,46 +129,125 @@ public class SvgLoader {
         }
     }
 
+    /**
+     * Loads an SVG image from a URL with default settings.
+     *
+     * @param url the URL of the SVG file
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url) {
         return loadSvgImage(url, null, false, 300, 300);
     }
 
+    /**
+     * Loads an SVG image from a URL with specified color class and fill stroke.
+     *
+     * @param url        the URL of the SVG file
+     * @param colorClass the color class to apply
+     * @param fillStroke whether to fill stroke color
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url, String colorClass, boolean fillStroke) {
         return loadSvgImage(url, colorClass, fillStroke, 300, 300);
     }
-    
+
+    /**
+     * Loads an SVG image from a URL with specified fill stroke.
+     *
+     * @param url        the URL of the SVG file
+     * @param fillStroke whether to fill stroke color
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url, boolean fillStroke) {
         return loadSvgImage(url, null, fillStroke);
     }
 
+    /**
+     * Loads an SVG image from a URL with specified color class.
+     *
+     * @param url        the URL of the SVG file
+     * @param colorClass the color class to apply
+     * @return the loaded image
+     */
     public Image loadSvgImage(String url, String colorClass) {
         return loadSvgImage(url, colorClass, false, 300, 300);
     }
 
+    /**
+     * Loads a Bootstrap icon SVG image with specified parameters.
+     *
+     * @param name       the name of the icon
+     * @param colorClass the color class to apply
+     * @param fillStroke whether to fill stroke color
+     * @param width      the width of the image
+     * @param height     the height of the image
+     * @return the loaded image
+     */
     public static Image bi(String name, String colorClass, boolean fillStroke, int width, int height) {
-        return getInstance().loadSvgImage("/images/application/icons/svg/bi/bi-" + name + ".svg", colorClass, fillStroke, width, height);
+        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, fillStroke, width, height);
     }
 
+    /**
+     * Loads a Bootstrap icon SVG image with specified parameters.
+     *
+     * @param name       the name of the icon
+     * @param colorClass the color class to apply
+     * @param fillStroke whether to fill stroke color
+     * @param width      the width of the image
+     * @param height     the height of the image
+     * @return the loaded image
+     */
     public static Image bi(String name, String colorClass, boolean fillStroke, double width, double height) {
-        return getInstance().loadSvgImage("/images/application/icons/svg/bi/bi-" + name + ".svg", colorClass, fillStroke, (int) width, (int) height);
+        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, fillStroke, (int) width, (int) height);
     }
 
+    /**
+     * Loads a Bootstrap icon SVG image with specified parameters.
+     *
+     * @param name       the name of the icon
+     * @param colorClass the color class to apply
+     * @param width      the width of the image
+     * @param height     the height of the image
+     * @return the loaded image
+     */
     public static Image bi(String name, String colorClass, double width, double height) {
-        return getInstance().loadSvgImage("/images/application/icons/svg/bi/bi-" + name + ".svg", colorClass, false, (int) width, (int) height);
+        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, false, (int) width, (int) height);
     }
 
+    /**
+     * Loads a Bootstrap icon SVG image with specified parameters.
+     *
+     * @param name       the name of the icon
+     * @param colorClass the color class to apply
+     * @param fillStroke whether to fill stroke color
+     * @return the loaded image
+     */
     public static Image bi(String name, String colorClass, boolean fillStroke) {
         return bi(name, colorClass, fillStroke, 300, 300);
     }
 
+    /**
+     * Loads a Bootstrap icon SVG image with specified parameters.
+     *
+     * @param name       the name of the icon
+     * @param colorClass the color class to apply
+     * @return the loaded image
+     */
     public static Image bi(String name, String colorClass) {
         return bi(name, colorClass, false);
     }
 
+    /**
+     * Applies a theme color to an SVG document.
+     *
+     * @param property   the CSS property to use for the color
+     * @param document   the SVG document
+     * @param fillStroke whether to fill stroke color
+     */
     private void applyThemeColor(String property, SVGDocument document, boolean fillStroke) {
         try {
             CssParser parser = new CssParser();
-            Stylesheet css = parser.parse(getClass().getResource("/styles/themes/default.css").toURI().toURL());
+            Stylesheet css = parser.parse(getClass().getResource(themePath).toURI().toURL());
             final Rule rootRule = css.getRules().get(0); // .root
             Color color = rootRule.getDeclarations().stream()
                     .filter(d -> d.getProperty().equals(property))
@@ -148,6 +266,13 @@ public class SvgLoader {
         }
     }
 
+    /**
+     * Applies a hex color to an SVG document.
+     *
+     * @param hexColor   the hex color to apply
+     * @param document   the SVG document
+     * @param fillStroke whether to fill stroke color
+     */
     private void applyHexColor(String hexColor, SVGDocument document, boolean fillStroke) {
         try {
             ((SVGOMSVGElement) document.getElementsByTagName("svg").item(0)).setAttribute("fill", hexColor);
@@ -159,11 +284,12 @@ public class SvgLoader {
         }
     }
 
-    private String format(double val) {
-        String in = Integer.toHexString((int) Math.round(val * 255));
-        return in.length() == 1 ? "0" + in : in;
-    }
-
+    /**
+     * Converts a color to a hex string.
+     *
+     * @param color the color to convert
+     * @return the hex string
+     */
     public String toHexString(Color color) {
         return String.format("#%02x%02x%02x",
                 (int) (255 * color.getRed()),

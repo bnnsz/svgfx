@@ -1,3 +1,18 @@
+/*
+ * Copyright 2024 Fluxvend
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.fluxvend.svgfx.utils;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -25,6 +40,11 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class for handling image operations.
+ * Provides methods for loading, caching, compressing, and manipulating images.
+ * Uses JavaFX and AWT libraries for image processing.
+ */
 public class Imagefx {
     
     private static Logger log = Logger.getLogger(Imagefx.class.getName());
@@ -32,10 +52,24 @@ public class Imagefx {
     private static final Executor executor = Executors.newFixedThreadPool(5);
 
 
+    /**
+     * Loads an image from the specified URL with default dimensions (70x100).
+     *
+     * @param imageUrl the URL of the image
+     * @return the loaded Image
+     */
     public static Image loadImage(String imageUrl) {
         return loadImage(imageUrl, 70, 100);
     }
 
+    /**
+     * Loads an image asynchronously from the specified URL with given dimensions.
+     *
+     * @param imageUrl      the URL of the image
+     * @param width         the width of the image
+     * @param height        the height of the image
+     * @param onImageLoaded a callback to handle the loaded image
+     */
     public static void loadImageAsync(String imageUrl, int width, int height, Consumer<Image> onImageLoaded) {
         executor.execute(() -> {
             if (StringUtils.isBlank(imageUrl) || imageUrl.equals("null")) {
@@ -46,6 +80,12 @@ public class Imagefx {
         });
     }
 
+    /**
+     * Loads an image asynchronously from the specified URL with default dimensions.
+     *
+     * @param imageUrl      the URL of the image
+     * @param onImageLoaded a callback to handle the loaded image
+     */
     public static void loadImageAsync(String imageUrl, Consumer<Image> onImageLoaded) {
         executor.execute(() -> {
             Image image = loadImage(imageUrl);
@@ -53,11 +93,26 @@ public class Imagefx {
         });
     }
 
+    /**
+     * Loads an SVG image into an ImageView from the specified path.
+     *
+     * @param imageView the ImageView to load the SVG into
+     * @param svgPath   the path of the SVG file
+     */
     public static void loadSvg(ImageView imageView, String svgPath) {
         imageView.setImage(SvgLoader.getInstance().loadSvgImage("/images/application/icons/svg/" + svgPath,
                 imageView.isPreserveRatio(), (int) imageView.getFitWidth(), (int) imageView.getFitHeight()));
     }
 
+    /**
+     * Loads an image from the specified URL with given dimensions.
+     * Uses a cache to store and retrieve images to reduce network load.
+     *
+     * @param imageUrl the URL of the image
+     * @param width    the width of the image
+     * @param height   the height of the image
+     * @return the loaded Image
+     */
     public static Image loadImage(String imageUrl, int width, int height) {
         // set cache directory and filename
         if (imageUrl == null || imageUrl.isEmpty()) {
@@ -78,6 +133,15 @@ public class Imagefx {
         return getJavaFXImage(imageData, width, height);
     }
 
+    /**
+     * Downloads an image from the specified URL and stores it in a cache file.
+     *
+     * @param imageUrl the URL of the image
+     * @param cacheFile the file to store the cached image
+     * @param width the width of the image
+     * @param height the height of the image
+     * @return the byte array of the downloaded image
+     */
     private static byte[] downloadImage(String imageUrl, File cacheFile, int width, int height) {
         // download image and store in cache
         byte[] imageData = null;
@@ -106,7 +170,14 @@ public class Imagefx {
         return imageData;
     }
 
-    //fill image boundaries with most common color in image to match the provided ratio
+    /**
+     * Fills image boundaries with the most common color in the image to match the provided ratio.
+     *
+     * @param originalImage the original image
+     * @param width the width of the image
+     * @param height the height of the image
+     * @return the filled image
+     */
     public static BufferedImage fillImage(BufferedImage originalImage, int width, int height) {
         try {
             //scale the original image to match the provided ratio
@@ -122,6 +193,15 @@ public class Imagefx {
         return originalImage;
     }
 
+    /**
+     * Scales the image to the specified dimensions, optionally maintaining the aspect ratio.
+     *
+     * @param originalImage the original image
+     * @param newWidth the new width of the image
+     * @param newHeight the new height of the image
+     * @param maintainAspectRatio whether to maintain the aspect ratio
+     * @return the scaled image
+     */
     public static BufferedImage scaleImage(BufferedImage originalImage, int newWidth, int newHeight, boolean maintainAspectRatio) {
         int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
 
@@ -153,12 +233,27 @@ public class Imagefx {
         return resizedImage;
     }
 
+    /**
+     * Calculates the scale factor to fit the image within the specified dimensions.
+     *
+     * @param originalWidth the original width of the image
+     * @param originalHeight the original height of the image
+     * @param newWidth the new width of the image
+     * @param newHeight the new height of the image
+     * @return the scale factor
+     */
     private static double getScaleFactor(int originalWidth, int originalHeight, int newWidth, int newHeight) {
         double scaleX = (double) newWidth / originalWidth;
         double scaleY = (double) newHeight / originalHeight;
         return Math.min(scaleX, scaleY);
     }
 
+    /**
+     * Finds the most common color in the image.
+     *
+     * @param image the image
+     * @return the most common color
+     */
     private static int getMostCommonColor(BufferedImage image) {
         int height = image.getHeight();
         int width = image.getWidth();
@@ -181,13 +276,25 @@ public class Imagefx {
         return maxColor;
     }
 
-
-
+    /**
+     * Checks if the cache file is expired (older than 24 hours).
+     *
+     * @param cacheFile the cache file
+     * @return true if the cache file is expired, false otherwise
+     */
     private static boolean isCacheExpired(File cacheFile) {
         long age = System.currentTimeMillis() - cacheFile.lastModified();
         return age > (24 * 60 * 60 * 1000); // expire after 24 hours
     }
 
+    /**
+     * Converts a byte array to a JavaFX Image.
+     *
+     * @param raw the byte array of the image data
+     * @param width the width of the image
+     * @param height the height of the image
+     * @return the JavaFX Image
+     */
     public static Image getJavaFXImage(byte[] raw, int width, int height) {
         WritableImage image = new WritableImage(width, height);
         try {
@@ -212,24 +319,13 @@ public class Imagefx {
         return image;
     }
 
-    public static Image getJavaFXImageLogo(byte[] raw, int width, int height) {
-        WritableImage image = new WritableImage(width, height);
-        try {
-            if (raw != null) {
-                ByteArrayInputStream bis = new ByteArrayInputStream(raw);
-                BufferedImage read = ImageIO.read(bis);
-                image = SwingFXUtils.toFXImage(read, null);
-            } else {
-                URL url = Imagefx.class.getResource("StorFront.jpg");
-                BufferedImage read = ImageIO.read(url);
-                image = SwingFXUtils.toFXImage(read, null);
-            }
-        } catch (IOException ex) {
-            log.log(Level.WARNING, "Error reading bytes from image", ex);
-        }
-        return image;
-    }
 
+    /**
+     * Converts an Image to a byte array.
+     *
+     * @param image the Image
+     * @return the byte array of the image data
+     */
     public static byte[] readBytesFromImage(Image image) {
         byte[] res = null;
         try {
@@ -244,6 +340,12 @@ public class Imagefx {
         return res;
     }
 
+    /**
+     * Converts a file to a byte array.
+     *
+     * @param filePath the path of the file
+     * @return the byte array of the file data
+     */
     public static byte[] readBytesFromFile(String filePath) {
 
         FileInputStream fileInputStream = null;
@@ -309,6 +411,16 @@ public class Imagefx {
         return newImage;
     }
 
+    /**
+     * Rounds the corners of an ImageView.
+     *
+     * @param clipped the ImageView to clip
+     * @param topLeft the radius of the top-left corner
+     * @param topRight the radius of the top-right corner
+     * @param bottomRight the radius of the bottom-right corner
+     * @param bottomLeft the radius of the bottom-left corner
+     * @return the clipped ImageView
+     */
     public static ImageView round(ImageView clipped,
                                   double topLeft,
                                   double topRight,
