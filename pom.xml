@@ -6,7 +6,7 @@
 
     <groupId>com.fluxvend</groupId>
     <artifactId>svgfx</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>svgfx</name>
     <description>A custom JavaFX controller library that extends ImageView to support Bootstrap icons and other SVG images. It enables high-quality vector SVG rendering, ensuring crisp visuals on any display. SVGFX simplifies scalable graphics integration for visually appealing JavaFX applications</description>
     <url>https://github.com/bnnsz/svgfx</url>

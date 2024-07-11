@@ -1,26 +1,36 @@
 /*
- * Copyright 2024 Fluxvend
+ * Copyright (c) 2008, 2021, Oracle and/or its affiliates. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”),
- * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
  *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
  */
+
 package com.fluxvend.svgfx;
 
-import com.fluxvend.svgfx.icons.Bi;
 import com.fluxvend.svgfx.utils.SvgLoader;
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
 import javafx.beans.DefaultProperty;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -30,53 +40,24 @@ import javafx.scene.control.Control;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * BootstrapIcon is a custom ImageView component for displaying Bootstrap icons in JavaFX.
- * The icon and its color can be set using properties.
+ * SvgImageView is a custom ImageView component for displaying SVG images in JavaFX.
  */
-@DefaultProperty("icon")
-public class BootstrapIcon extends Control {
+@DefaultProperty("svg")
+public class SvgImageView extends Control {
     private PauseTransition pauseTransition;
-    @FXML
-    private ObjectProperty<Bi> icon = new SimpleObjectProperty<>();
+
     @FXML
     private StringProperty color = new SimpleStringProperty();
     @FXML
-    private DoubleProperty size = new SimpleDoubleProperty(24.0);
-    private static String ICON_PATH = "/com/fluxvend/svgfx/images/svg/bi/";
-    private static final String DEFAULT_STYLE_CLASS = "bootstrap-icon";
+    private StringProperty svg = new SimpleStringProperty();
 
     private ImageView imageView = new ImageView();
 
-    /**
-     * Get the icon property
-     *
-     * @return the current icon
-     */
-    @FXML
-    public Bi getIcon() {
-        return icon.get();
-    }
-
-    /**
-     * Set the icon property
-     * @param icon the icon to set
-     */
-    @FXML
-    public void setIcon(Bi icon) {
-        this.icon.set(icon);
-    }
-
-    /**
-     * Get the icon property
-     *
-     * @return the icon property
-     */
-    @FXML
-    public ObjectProperty<Bi> iconProperty() {
-        return icon;
-    }
+    private static final String DEFAULT_STYLE_CLASS = "svg-image-view";
+    private static final int DEFAULT_SIZE = 100;
 
     /**
      * Get the color property
@@ -109,50 +90,50 @@ public class BootstrapIcon extends Control {
     }
 
     /**
-     * Get the size property
+     * Get the svg property
      *
-     * @return the size property
+     * @return the svg property
      */
     @FXML
-    public DoubleProperty sizeProperty() {
-        return size;
+    public StringProperty svgProperty() {
+        return svg;
     }
 
     /**
-     * Get the size property
+     * Get the svg property
      *
-     * @return the current size
+     * @return the current svg
      */
     @FXML
-    public double getSize() {
-        return size.get();
+    public String getSvg() {
+        return svg.get();
     }
 
     /**
-     * Set the size property
+     * Set the svg property
      *
-     * @param size the size to set
+     * @param svg the svg to set
      */
     @FXML
-    public void setSize(double size) {
-        this.size.set(size);
+    public void setSvg(String svg) {
+        this.svg.set(svg);
     }
 
 
     /**
-     * Loads the image for the current icon and color.
+     * Loads the image for the current svg and color.
      *
      * @return the loaded image
      */
     public Image loadImage() {
-        Bi bi = icon.get();
-        if(bi == null){
+        if(StringUtils.isBlank(this.getSvg())) {
             return null;
         }
-        int width = (int) this.getSize();
-        int height = (int) this.getSize();
+        int width = (int) imageView.getFitWidth();
+        int height = (int) imageView.getFitHeight();
+        String url = this.getSvg();
         String color = this.getColor();
-        return SvgLoader.getInstance().loadSvgImage(ICON_PATH+"bi-"+bi.getIcon()+".svg",color,false,width,height);
+        return SvgLoader.getInstance().loadSvgImage(url, color,false,width,height);
     }
 
     /**
@@ -181,72 +162,69 @@ public class BootstrapIcon extends Control {
         });
         pauseTransition.play();
     }
-    
-    
+
+
 
     /**
-     * Default constructor for BootstrapIcon. Sets default size, icon, and initializes listeners.
+     * Default constructor for SvgImageView. Sets default size, and initializes listeners.
      */
-    public BootstrapIcon() {
-        imageView.setFitHeight(this.getSize());
-        imageView.setFitWidth(this.getSize());
-        this.setWidth(this.getSize());
-        this.setHeight(this.getSize());
-        this.setPrefSize(this.getSize(),this.getSize());
+    public SvgImageView() {
+        this.setPrefSize(DEFAULT_SIZE,DEFAULT_SIZE);
+        imageView.setFitHeight(DEFAULT_SIZE);
+        imageView.setFitWidth(DEFAULT_SIZE);
+        this.setWidth(DEFAULT_SIZE);
+        this.setHeight(DEFAULT_SIZE);
+
         this.setMaxSize(USE_PREF_SIZE,USE_PREF_SIZE);
 
-        this.icon.set(Bi.ARROW_LEFT_CIRCLE);
         imageView.setImage(loadImage());
         getStyleClass().add(DEFAULT_STYLE_CLASS);
         setAccessibleRole(AccessibleRole.IMAGE_VIEW);
         setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         this.getChildren().add(imageView);
 
-        this.icon.addListener(iconChangeListener);
+        this.svg.addListener(svgChangeListener);
         this.color.addListener(colorChangeListener);
-        this.size.addListener(sizeChangeListener);
         this.prefWidthProperty().addListener(widthChangeListener);
         this.prefHeightProperty().addListener(heightChangeListener);
 
         this.prefHeightProperty().bindBidirectional(this.prefWidthProperty());
-        this.size.bindBidirectional(this.prefWidthProperty());
     }
 
     /**
-     * Constructor for BootstrapIcon with a specified icon.
+     * Constructor for SvgImageView with a specified svg.
      *
-     * @param icon the initial icon to set
+     * @param svg the initial svg to set
      */
-    public BootstrapIcon(Bi icon) {
-        imageView.setFitHeight(this.getSize());
-        imageView.setFitWidth(this.getSize());
-        this.setWidth(this.getSize());
-        this.setHeight(this.getSize());
-        this.setPrefSize(this.getSize(),this.getSize());
+    public SvgImageView(String svg) {
+        this.setPrefSize(DEFAULT_SIZE,DEFAULT_SIZE);
+        imageView.setFitHeight(DEFAULT_SIZE);
+        imageView.setFitWidth(DEFAULT_SIZE);
+        this.setWidth(DEFAULT_SIZE);
+        this.setHeight(DEFAULT_SIZE);
+
         this.setMaxSize(USE_PREF_SIZE,USE_PREF_SIZE);
 
-        this.icon.set(icon);
+        this.svg.set(svg);
         imageView.setImage(loadImage());
         getStyleClass().add(DEFAULT_STYLE_CLASS);
         setAccessibleRole(AccessibleRole.IMAGE_VIEW);
         setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         this.getChildren().add(imageView);
 
-        this.icon.addListener(iconChangeListener);
+        this.svg.addListener(svgChangeListener);
         this.color.addListener(colorChangeListener);
-        this.size.addListener(sizeChangeListener);
         this.prefWidthProperty().addListener(widthChangeListener);
         this.prefHeightProperty().addListener(heightChangeListener);
 
         this.prefHeightProperty().bindBidirectional(this.prefWidthProperty());
-        this.size.bindBidirectional(this.prefWidthProperty());
     }
 
     /**
-     * Change listener for the icon property
+     * Change listener for the svg property
      * This listener will reload the image
      */
-    private final ChangeListener<Bi> iconChangeListener = (observable, oldValue, newValue) -> {
+    private final ChangeListener<String> svgChangeListener = (observable, oldValue, newValue) -> {
         loadImageAsync();
     };
 
@@ -259,23 +237,15 @@ public class BootstrapIcon extends Control {
     };
 
     /**
-     * Change listener for the size property
-     * This listener will resize the image view and reload the image
-     */
-    private final ChangeListener<Number> sizeChangeListener = (observable, oldValue, newValue) -> {
-        imageView.setFitHeight(newValue.doubleValue());
-        imageView.setFitWidth(newValue.doubleValue());
-        loadImageAsync();
-    };
-
-    /**
      * Change listener for the width property
      * This listener will resize the image view to fit the new width and height
      * and reload the image
      */
     private final ChangeListener<Number> widthChangeListener = (observable, oldValue, newValue) -> {
         double val = Math.min(newValue.doubleValue(),this.getPrefHeight());
-        this.setSize(val);
+        imageView.setFitHeight(val);
+        imageView.setFitWidth(val);
+        loadImageAsync();
     };
 
     /**
@@ -285,13 +255,13 @@ public class BootstrapIcon extends Control {
      */
     private final ChangeListener<Number> heightChangeListener = (observable, oldValue, newValue) -> {
         double val = Math.min(newValue.doubleValue(),this.getPrefWidth());
-        this.setSize(val);
+        imageView.setFitHeight(val);
+        imageView.setFitWidth(val);
+        loadImageAsync();
     };
 
     /** {@inheritDoc} */
     protected void layoutChildren() {
-        this.imageView.resizeRelocate(0.0, 0.0, this.getSize(), this.getSize());
+        this.imageView.resizeRelocate(0.0, 0.0, this.getWidth(), this.getHeight());
     }
-
 }
-
