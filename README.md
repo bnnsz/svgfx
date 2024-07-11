@@ -12,7 +12,7 @@ Add the following dependency to your `pom.xml`:
 <dependency>
     <groupId>com.fluxvend</groupId>
     <artifactId>svgfx</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -22,7 +22,7 @@ Add the following dependency to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'com.fluxvend:svgfx:0.0.1'
+    implementation 'com.fluxvend:svgfx:0.0.2'
 }
 ```
 
