@@ -27,6 +27,7 @@ import org.apache.batik.anim.dom.SVGOMSVGElement;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.svg.SVGDocument;
 
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class SvgLoader {
      * @param height     the height of the image
      * @return the loaded image
      */
-    public Image loadSvgImage(String url, boolean fillStroke, int width, int height) {
+    public Image loadSvgImage(String url, boolean fillStroke, Double width, Double height) {
         return loadSvgImage(url, null, fillStroke, width, height);
     }
 
@@ -93,9 +94,7 @@ public class SvgLoader {
      * @param height     the height of the image
      * @return the loaded image
      */
-    public Image loadSvgImage(String url, String colorClass, boolean fillStroke, int width, int height) {
-
-        BufferedImageTranscoder trans = new BufferedImageTranscoder(width, height);
+    public Image loadSvgImage(String url, String colorClass, boolean fillStroke, Double width, Double height) {
         try (InputStream file = getClass().getResourceAsStream(url)) {
             String parser = XMLResourceDescriptor.getXMLParserClassName();
             SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
@@ -112,11 +111,55 @@ public class SvgLoader {
                 }
             }
             doc.getDocumentElement().normalize();
+
+            String widthAttribute = doc.getDocumentElement().getAttribute("width");
+            Double imageWidth = StringUtils.isBlank(widthAttribute) ? null : Double.parseDouble(widthAttribute.replace("px", ""));
+            String heightAttribute = doc.getDocumentElement().getAttribute("height");
+            Double imageHeight = StringUtils.isBlank(heightAttribute) ? null : Double.parseDouble(heightAttribute.replace("px", ""));
+            if (imageWidth == null || imageHeight == null) {
+                String viewBox = doc.getDocumentElement().getAttribute("viewBox");
+                if (StringUtils.isNotBlank(viewBox)) {
+                    String[] parts = viewBox.split(" ");
+                    if (imageWidth == null) {
+                        imageWidth = Double.parseDouble(parts[2]);
+                    }
+                    if (imageHeight == null) {
+                        imageHeight = Double.parseDouble(parts[3]);
+                    }
+                }
+            }
+
+            if (imageWidth != null && imageHeight != null) {
+                if (width != null && height != null) {
+                    double aspectRatio = imageWidth / imageHeight;
+                    double newAspectRatio = width / height;
+                    if (newAspectRatio > aspectRatio) {
+                        width = height * aspectRatio;
+                    } else {
+                        height = width / aspectRatio;
+                    }
+                } else if (width != null) {
+                    height = width / imageWidth * imageHeight;
+                } else if (height != null) {
+                    width = height / imageHeight * imageWidth;
+                } else {
+                    width = imageWidth;
+                    height = imageHeight;
+                }
+            }
+
+            if (width == null) {
+                width = 300.0;
+            }
+            if (height == null) {
+                height = 300.0;
+            }
+
             doc.getDocumentElement().setAttribute("width", width + "px");
             doc.getDocumentElement().setAttribute("height", height + "px");
             TranscoderInput transIn = new TranscoderInput(doc);
             try {
-
+                BufferedImageTranscoder trans = new BufferedImageTranscoder(width, height);
                 trans.transcode(transIn, null);
                 return SwingFXUtils.toFXImage(trans.getBufferedImage(), null);
             } catch (TranscoderException ex) {
@@ -136,7 +179,7 @@ public class SvgLoader {
      * @return the loaded image
      */
     public Image loadSvgImage(String url) {
-        return loadSvgImage(url, null, false, 300, 300);
+        return loadSvgImage(url, null, false, null, null);
     }
 
     /**
@@ -148,7 +191,7 @@ public class SvgLoader {
      * @return the loaded image
      */
     public Image loadSvgImage(String url, String colorClass, boolean fillStroke) {
-        return loadSvgImage(url, colorClass, fillStroke, 300, 300);
+        return loadSvgImage(url, colorClass, fillStroke, null, null);
     }
 
     /**
@@ -170,21 +213,7 @@ public class SvgLoader {
      * @return the loaded image
      */
     public Image loadSvgImage(String url, String colorClass) {
-        return loadSvgImage(url, colorClass, false, 300, 300);
-    }
-
-    /**
-     * Loads a Bootstrap icon SVG image with specified parameters.
-     *
-     * @param name       the name of the icon
-     * @param colorClass the color class to apply
-     * @param fillStroke whether to fill stroke color
-     * @param width      the width of the image
-     * @param height     the height of the image
-     * @return the loaded image
-     */
-    public static Image bi(String name, String colorClass, boolean fillStroke, int width, int height) {
-        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, fillStroke, width, height);
+        return loadSvgImage(url, colorClass, false, null, null);
     }
 
     /**
@@ -198,7 +227,7 @@ public class SvgLoader {
      * @return the loaded image
      */
     public static Image bi(String name, String colorClass, boolean fillStroke, double width, double height) {
-        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, fillStroke, (int) width, (int) height);
+        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, fillStroke, width, height);
     }
 
     /**
@@ -211,7 +240,7 @@ public class SvgLoader {
      * @return the loaded image
      */
     public static Image bi(String name, String colorClass, double width, double height) {
-        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, false, (int) width, (int) height);
+        return getInstance().loadSvgImage(BI_ICON_PATH + name + ".svg", colorClass, false, width, height);
     }
 
     /**

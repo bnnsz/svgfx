@@ -29,6 +29,11 @@ public class BufferedImageTranscoder extends ImageTranscoder {
 
     private BufferedImage img = null;
     
+    BufferedImageTranscoder(double width, double height){
+        this.width = (float) width;
+        this.height = (float) height;
+    }
+
     BufferedImageTranscoder(int width, int height){
         this.width = width;
         this.height = height;
