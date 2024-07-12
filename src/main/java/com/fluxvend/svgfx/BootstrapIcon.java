@@ -149,8 +149,8 @@ public class BootstrapIcon extends Control {
         if(bi == null){
             return null;
         }
-        int width = (int) this.getSize();
-        int height = (int) this.getSize();
+        double width = this.getSize();
+        double height = this.getSize();
         String color = this.getColor();
         return SvgLoader.getInstance().loadSvgImage(ICON_PATH+"bi-"+bi.getIcon()+".svg",color,false,width,height);
     }

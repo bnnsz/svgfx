@@ -129,11 +129,14 @@ public class SvgImageView extends Control {
         if(StringUtils.isBlank(this.getSvg())) {
             return null;
         }
-        int width = (int) imageView.getFitWidth();
-        int height = (int) imageView.getFitHeight();
+        Double width = imageView.getFitWidth() <= 0.00 ? null : imageView.getFitWidth();
+        Double height = imageView.getFitHeight() <= 0.00 ? null :  imageView.getFitHeight();
         String url = this.getSvg();
         String color = this.getColor();
-        return SvgLoader.getInstance().loadSvgImage(url, color,false,width,height);
+        Image image = SvgLoader.getInstance().loadSvgImage(url, color,false,width,height);
+        imageView.setFitWidth(image.getWidth());
+        imageView.setFitHeight(image.getHeight());
+        return image;
     }
 
     /**
@@ -187,8 +190,6 @@ public class SvgImageView extends Control {
         this.color.addListener(colorChangeListener);
         this.prefWidthProperty().addListener(widthChangeListener);
         this.prefHeightProperty().addListener(heightChangeListener);
-
-        this.prefHeightProperty().bindBidirectional(this.prefWidthProperty());
     }
 
     /**
@@ -216,8 +217,6 @@ public class SvgImageView extends Control {
         this.color.addListener(colorChangeListener);
         this.prefWidthProperty().addListener(widthChangeListener);
         this.prefHeightProperty().addListener(heightChangeListener);
-
-        this.prefHeightProperty().bindBidirectional(this.prefWidthProperty());
     }
 
     /**
@@ -225,7 +224,7 @@ public class SvgImageView extends Control {
      * This listener will reload the image
      */
     private final ChangeListener<String> svgChangeListener = (observable, oldValue, newValue) -> {
-        loadImageAsync();
+        imageView.setImage(loadImage());
     };
 
     /**
@@ -242,9 +241,7 @@ public class SvgImageView extends Control {
      * and reload the image
      */
     private final ChangeListener<Number> widthChangeListener = (observable, oldValue, newValue) -> {
-        double val = Math.min(newValue.doubleValue(),this.getPrefHeight());
-        imageView.setFitHeight(val);
-        imageView.setFitWidth(val);
+        imageView.setFitWidth(newValue.doubleValue());
         loadImageAsync();
     };
 
@@ -254,9 +251,7 @@ public class SvgImageView extends Control {
      * and reload the image
      */
     private final ChangeListener<Number> heightChangeListener = (observable, oldValue, newValue) -> {
-        double val = Math.min(newValue.doubleValue(),this.getPrefWidth());
-        imageView.setFitHeight(val);
-        imageView.setFitWidth(val);
+        imageView.setFitHeight(newValue.doubleValue());
         loadImageAsync();
     };
 

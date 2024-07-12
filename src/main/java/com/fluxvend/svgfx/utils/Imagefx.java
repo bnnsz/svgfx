@@ -101,7 +101,7 @@ public class Imagefx {
      */
     public static void loadSvg(ImageView imageView, String svgPath) {
         imageView.setImage(SvgLoader.getInstance().loadSvgImage("/images/application/icons/svg/" + svgPath,
-                imageView.isPreserveRatio(), (int) imageView.getFitWidth(), (int) imageView.getFitHeight()));
+                imageView.isPreserveRatio(), imageView.getFitWidth(), imageView.getFitHeight()));
     }
 
     /**
